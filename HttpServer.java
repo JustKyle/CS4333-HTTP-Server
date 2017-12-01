@@ -1,12 +1,53 @@
 import java.io.*;
 import java.net.*;
 import java.util.Objects;
+// import ClientHandler;
 
 public class HttpServer {
 
-	public static void main(String[] args) {
-		int serverPort = 0;
+	public static int serverPort;
 
+	// public int HEAD() {
+
+	// }
+
+	// public int GET() {
+
+	// }
+
+	// method for reading the request and verifying that it has all the necessary info
+	public static void parseRequest() {
+		ServerSocket server = null;
+		Socket client;
+		boolean receiving = true;
+
+		// Attempt to open the server on serverPort
+		try {
+			server = new ServerSocket(serverPort);
+		} catch (IOException e) {
+			System.out.println("Could not listen on port " + serverPort);
+			System.exit(1);
+		}
+
+		while(receiving) {
+			// attempt to connect to the client to receive data
+			try {
+				client=server.accept();
+				System.out.println("Server accepted connection from "+client.getInetAddress());
+
+				// create and run a thread to handle the incoming request
+				ClientHandler ch = new ClientHandler(client);
+				new Thread(ch).start();
+			} catch (IOException e) {
+				System.out.println("Server unable to listen on specified port");
+				receiving = false;
+				System.exit(1);
+	        }
+		}
+	}
+
+
+	public static void main(String[] args) {
 		// Exit program if more than one argument given
 		if (args.length > 1) {
 			System.out.println("Too many arguments given");
@@ -21,43 +62,10 @@ public class HttpServer {
 			serverPort = Integer.parseInt(args[0]);
 		}
 
+		parseRequest();
+
+		// Create a while loop and continuously do the following...
+
 		// instantiate socket and socketserver objects, attempt to open server socket on specified port number
-		ServerSocket server = null;
-		Socket client = null;
-		try {
-			server = new ServerSocket(serverPort);
-		} catch (IOException e) {
-			System.out.println("Could not listen on port " + serverPort);
-			System.exit(1);
-		} 
-
-
-		try {
-			client=server.accept();
-			System.out.println("Server accepted connection from "+client.getInetAddress());
-		} catch (IOException e) {
-			System.out.println("Server unable to listen on specified port");
-			System.exit(1);
-        } 
-
-        boolean running = true;
-        BufferedReader in = null;
-        while (running) {
-        	String message = "";
-	        try {
-	        	in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-	        } catch (IOException e) {
-				System.out.println("Couldn't get an inputStream from the client");
-				running = false;
-			} try {
-				while(running) {
-					message = in.readLine();
-					System.out.println("[remote] " + message);
-				}
-			} catch  (IOException e) {
-				System.out.println("No I/O");
-				running = false;
-			}
-		}
 	}
 }
