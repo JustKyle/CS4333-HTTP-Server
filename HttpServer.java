@@ -32,6 +32,7 @@ public class HttpServer {
 		while(receiving) {
 			// attempt to connect to the client to receive data
 			try {
+				System.out.println("waiting...");
 				client=server.accept();
 				System.out.println("Server accepted connection from "+client.getInetAddress());
 
